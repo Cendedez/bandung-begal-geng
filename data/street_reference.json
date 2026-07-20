@@ -1,0 +1,184 @@
+{
+  "version": "2026-07-20",
+  "source": "OpenStreetMap Nominatim road references",
+  "streets": [
+    {
+      "canonical_name": "Jl. Soekarno Hatta",
+      "aliases": ["soekarno hatta", "soekarno-hatta"],
+      "road_name": "Jalan Soekarno-Hatta",
+      "latitude": -6.9219347,
+      "longitude": 107.5746515,
+      "osm_way_id": 331274476,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Asia Afrika",
+      "aliases": ["asia afrika"],
+      "road_name": "Jalan Asia Afrika",
+      "latitude": -6.9212069,
+      "longitude": 107.6075011,
+      "osm_way_id": 552308523,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Pasteur",
+      "aliases": ["pasteur"],
+      "road_name": "Jalan Pasteur",
+      "latitude": -6.9003834,
+      "longitude": 107.597989,
+      "osm_way_id": 153180024,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Terusan Pasteur",
+      "aliases": ["terusan pasteur", "dr djunjunan", "dokter djunjunan", "djunjunan"],
+      "road_name": "Jalan Dr. Djunjunan",
+      "latitude": -6.8924893,
+      "longitude": 107.5847536,
+      "osm_way_id": 318670697,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Dago",
+      "aliases": ["dago", "ir h djuanda", "ir h juanda", "juanda"],
+      "road_name": "Jalan Ir. H. Djuanda",
+      "latitude": -6.8777259,
+      "longitude": 107.6170252,
+      "osm_way_id": 680350632,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Cibiru",
+      "aliases": ["cibiru"],
+      "mappable": false,
+      "reason": "Cibiru adalah area; laporan harus menyebut ruas jalan atau koordinat manual."
+    },
+    {
+      "canonical_name": "Jl. Amir Machmud",
+      "aliases": ["amir machmud"],
+      "road_name": "Jalan Jend. H. Amir Machmud",
+      "latitude": -6.9018548,
+      "longitude": 107.5637941,
+      "osm_way_id": 573771123,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Gatot Subroto",
+      "aliases": ["gatot subroto"],
+      "road_name": "Jalan Jenderal Gatot Subroto",
+      "latitude": -6.932533,
+      "longitude": 107.6443319,
+      "osm_way_id": 180401966,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Buah Batu",
+      "aliases": ["buah batu"],
+      "road_name": "Jalan Buah Batu",
+      "latitude": -6.9490368,
+      "longitude": 107.6343674,
+      "osm_way_id": 385695756,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Rajawali",
+      "aliases": ["rajawali"],
+      "road_name": "Jalan Rajawali Timur",
+      "latitude": -6.9162422,
+      "longitude": 107.5881426,
+      "osm_way_id": 318891919,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Kopo",
+      "aliases": ["kopo"],
+      "landmark_aliases": ["flyover kopo"],
+      "road_name": "Jalan Layang Kopo",
+      "latitude": -6.9465897,
+      "longitude": 107.5920295,
+      "osm_way_id": 990491863,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Leuwi Panjang",
+      "aliases": ["leuwi panjang", "leuwipanjang"],
+      "road_name": "Jalan Leuwi Panjang",
+      "latitude": -6.9421206,
+      "longitude": 107.5961405,
+      "osm_way_id": 340400255,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Sudirman",
+      "aliases": ["sudirman", "jendral sudirman", "jenderal sudirman"],
+      "road_name": "Jalan Jendral Sudirman",
+      "latitude": -6.9199177,
+      "longitude": 107.5968006,
+      "osm_way_id": 557541290,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Encep Kartawiria",
+      "aliases": ["encep kartawiria"],
+      "road_name": "Jalan Encep Kartawiria",
+      "latitude": -6.8683741,
+      "longitude": 107.5450805,
+      "osm_way_id": 278473460,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Ahmad Yani",
+      "aliases": ["ahmad yani"],
+      "road_name": "Jalan Ahmad Yani",
+      "latitude": -6.9203363,
+      "longitude": 107.6210754,
+      "osm_way_id": 1074704934,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Setiabudi",
+      "aliases": ["setiabudi", "dr setiabudi"],
+      "road_name": "Jalan Dr. Setiabudi",
+      "latitude": -6.8797999,
+      "longitude": 107.5985077,
+      "osm_way_id": 153284261,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Cihampelas",
+      "aliases": ["cihampelas"],
+      "road_name": "Jalan Cihampelas",
+      "latitude": -6.8926169,
+      "longitude": 107.6042114,
+      "osm_way_id": 319083572,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Ciumbuleuit",
+      "aliases": ["ciumbuleuit"],
+      "road_name": "Jalan Ciumbuleuit",
+      "latitude": -6.8727571,
+      "longitude": 107.6050204,
+      "osm_way_id": 222733919,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. Moh. Toha",
+      "aliases": ["moh toha", "mohammad toha", "m toha"],
+      "road_name": "Jalan Mohammad Toha",
+      "latitude": -6.9585619,
+      "longitude": 107.6128452,
+      "osm_way_id": 4627168,
+      "mappable": true
+    },
+    {
+      "canonical_name": "Jl. BKR",
+      "aliases": ["bkr"],
+      "road_name": "Jalan BKR",
+      "latitude": -6.9377868,
+      "longitude": 107.6113565,
+      "osm_way_id": 318899765,
+      "mappable": true
+    }
+  ]
+}

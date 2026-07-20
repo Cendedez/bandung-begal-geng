@@ -1,0 +1,25 @@
+# Secrets and local deployment configuration
+.env
+.env.*
+!.env.example
+deploy/*.env
+!deploy/*.env.example
+web/.env.local
+web/.env.*.local
+
+# Python
+.venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Node / Next.js
+web/node_modules/
+web/.next/
+web/tsconfig.tsbuildinfo
+
+# Local artifacts
+cache/
+*.updating.csv
+crime_data.before_location_repair_*.csv
+crime_data.pre_postgres_migration_*.csv

@@ -1,0 +1,11 @@
+.venv/
+.next/
+cache/
+web/.next/
+web/node_modules/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.updating.csv
+crime_data.before_location_repair_*.csv
+crime_data.pre_postgres_migration_*.csv

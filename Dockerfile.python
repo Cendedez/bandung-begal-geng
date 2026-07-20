@@ -1,0 +1,20 @@
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+COPY requirements-runtime.txt ./
+RUN pip install --no-cache-dir -r requirements-runtime.txt
+
+COPY api ./api
+COPY components ./components
+COPY data ./data
+COPY database ./database
+COPY scripts ./scripts
+COPY utils ./utils
+COPY app.py crime_data.csv ./
+
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
