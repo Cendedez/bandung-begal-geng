@@ -12,12 +12,15 @@ async function handler(
 
   const headers = new Headers(request.headers);
   headers.set("ngrok-skip-browser-warning", "true");
+  // Also override User-Agent as a secondary bypass method for Ngrok
+  headers.set("User-Agent", "bandung-begal-app/1.0");
   headers.delete("host");
 
   try {
     const upstreamResponse = await fetch(upstream, {
       method: request.method,
       headers,
+      cache: "no-store",
       body: request.method !== "GET" && request.method !== "HEAD"
         ? await request.blob()
         : undefined,
