@@ -8,7 +8,15 @@ async function handler(
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   const { path } = await params;
-  const upstream = `${INTERNAL_API_URL}/${path.join("/")}${request.nextUrl.search}`;
+  
+  // FORCE https:// because if the env var uses http://, Ngrok will respond with a 308 redirect to https://.
+  // When Node/Next.js fetch follows a redirect, IT DROPS ALL CUSTOM HEADERS (security feature).
+  // This causes the ngrok-skip-browser-warning to be lost, and the abuse page is returned.
+  let rawUpstream = INTERNAL_API_URL;
+  if (rawUpstream.includes("ngrok-free.app")) {
+    rawUpstream = rawUpstream.replace(/^http:\/\//, "https://");
+  }
+  const upstream = `${rawUpstream}/${path.join("/")}${request.nextUrl.search}`;
 
   // Create completely CLEAN headers, do NOT forward browser headers
   // Forwarding browser headers can trigger Ngrok's anti-abuse system
