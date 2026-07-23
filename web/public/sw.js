@@ -1,4 +1,4 @@
-const CACHE_NAME = "bandung-aman-shell-v3";
+const CACHE_NAME = "bandung-aman-cache-v4";
 
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) =>
