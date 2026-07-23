@@ -18,17 +18,18 @@ async function handler(
   }
   const upstream = `${rawUpstream}/${path.join("/")}${request.nextUrl.search}`;
 
-  // Create completely CLEAN headers, do NOT forward browser headers
-  // Forwarding browser headers can trigger Ngrok's anti-abuse system
-  const headers = new Headers();
-  headers.set("ngrok-skip-browser-warning", "true");
-  headers.set("User-Agent", "curl/7.68.0"); // Ngrok officially whitelists curl
-  headers.set("Accept", "application/json");
+  // Use a plain object for headers! Next.js edge fetch sometimes drops custom headers
+  // if they are passed inside a Headers class instance due to internal sanitization bugs.
+  const customHeaders = {
+    "ngrok-skip-browser-warning": "true",
+    "user-agent": "curl/7.68.0", // Force curl user-agent
+    "accept": "application/json"
+  };
 
   try {
     const upstreamResponse = await fetch(upstream, {
       method: request.method,
-      headers,
+      headers: customHeaders,
       cache: "no-store",
       body: request.method !== "GET" && request.method !== "HEAD"
         ? await request.blob()

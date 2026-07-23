@@ -157,6 +157,11 @@ def health_check():
     return {"status": "ok", "database": "ok", "postgis_version": row["postgis_version"]}
 
 
+@app.get("/debug/headers")
+def debug_headers(request: Request):
+    return dict(request.headers)
+
+
 @app.get("/v1/incidents", response_model=FeatureCollection)
 def list_incidents(
     start_date: date | None = None,
