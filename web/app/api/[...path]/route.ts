@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const INTERNAL_API_URL =
   process.env.INTERNAL_API_URL ?? "http://127.0.0.1:8000";
 

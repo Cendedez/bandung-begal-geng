@@ -126,9 +126,15 @@ export default function MapExperience() {
     setIsLoading(true);
     setLoadError("");
     const params = new URLSearchParams();
-    filters.crimeTypes.forEach((crimeType) => params.append("crime_type", crimeType));
+    if (filters.crimeTypes) {
+      filters.crimeTypes.forEach(type => params.append('crime_type', type));
+    }
     if (filters.startDate) params.set("start_date", filters.startDate);
     if (filters.endDate) params.set("end_date", filters.endDate);
+
+    // ADD A CACHE BUSTER! The Vercel CDN has aggressively cached the old Ngrok HTML error
+    // for the exact previous query string. Adding a timestamp forces Vercel to bypass its CDN cache.
+    params.append('_t', Date.now().toString());
 
     try {
       const response = await fetch(`${API_BASE_URL}/v1/incidents?${params.toString()}`, { 
