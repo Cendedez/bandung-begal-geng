@@ -142,6 +142,53 @@ def _find_fuzzy_candidates(connection, normalized_name):
     return [_row_to_candidate(row, row["score"]) for row in rows]
 
 
+def match_road_by_coordinates(connection, latitude: float, longitude: float):
+    """Match a report to the nearest road segment based on GPS coordinates."""
+    with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+        cursor.execute(
+            """
+            SELECT
+                osm_way_id, name, highway_type,
+                ST_Y(road_center) AS latitude,
+                ST_X(road_center) AS longitude,
+                ST_Distance(road_geometry, ST_SetSRID(ST_MakePoint(%s, %s), 4326), true) as dist_meters
+            FROM road_segments
+            WHERE is_reportable = true
+            ORDER BY road_geometry <-> ST_SetSRID(ST_MakePoint(%s, %s), 4326)
+            LIMIT 1;
+            """,
+            (longitude, latitude, longitude, latitude),
+        )
+        nearest_road = cursor.fetchone()
+
+    if not nearest_road or nearest_road["dist_meters"] > 200:
+        # If no road within 200 meters, just use the GPS coordinates directly
+        return RoadMatch(
+            status="exact",
+            confidence=1.0,
+            street_name_normalized=None,
+            road_way_id=None,
+            latitude=latitude,
+            longitude=longitude,
+            location_precision="gps",
+            geocode_source="device_gps",
+            review_reason="Menggunakan koordinat GPS perangkat",
+            candidates=[],
+        )
+
+    return RoadMatch(
+        status="exact",
+        confidence=1.0,
+        street_name_normalized=nearest_road["name"],
+        road_way_id=nearest_road["osm_way_id"],
+        latitude=latitude,
+        longitude=longitude,
+        location_precision="gps_snapped",
+        geocode_source="device_gps",
+        review_reason=f"GPS perangkat dipetakan ke jalan terdekat: {nearest_road['name']} ({nearest_road['dist_meters']:.1f}m)",
+        candidates=[],
+    )
+
 def match_road(connection, road_name, road_way_id=None):
     """Match a report road conservatively; fuzzy matches never receive a coordinate."""
     normalized_name = normalize_road_name(road_name)

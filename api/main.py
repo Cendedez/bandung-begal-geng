@@ -311,7 +311,12 @@ def submit_report(payload: ReportSubmission, request: Request):
     occurred_at = _normalize_occurrence_time(payload.occurred_at)
 
     with get_connection() as connection:
-        road_match = match_road(connection, payload.road_name, payload.road_way_id)
+        if payload.latitude is not None and payload.longitude is not None:
+            from api.road_matching import match_road_by_coordinates
+            road_match = match_road_by_coordinates(connection, payload.latitude, payload.longitude)
+        else:
+            road_match = match_road(connection, payload.road_name, payload.road_way_id)
+            
         location = _location_payload(road_match)
         fingerprint = _report_fingerprint(payload, occurred_at, road_match)
         with connection.cursor() as cursor:

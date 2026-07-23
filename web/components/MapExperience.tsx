@@ -19,7 +19,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api";
+const API_BASE_URL = "/api";
 const BANDUNG_CENTER: [number, number] = [107.6191, -6.9175];
 
 type CrimeType = "Begal" | "Geng Motor";
@@ -137,11 +137,9 @@ export default function MapExperience() {
     params.append('_t', Date.now().toString());
 
     try {
-      const response = await fetch(`${API_BASE_URL}/v1/incidents?${params.toString()}`, { 
+      const response = await fetch(`${API_BASE_URL}/v1/incidents?${params.toString()}`, {
         signal,
-        headers: {
-          'ngrok-skip-browser-warning': 'true'
-        }
+        cache: "no-store",
       });
       if (!response.ok) throw new Error("Data peta belum tersedia.");
       const collection = (await response.json()) as IncidentCollection;
@@ -244,11 +242,9 @@ export default function MapExperience() {
     }
     const controller = new AbortController();
     setIsDetailLoading(true);
-    fetch(`${API_BASE_URL}/v1/incidents/${selectedId}`, { 
+    fetch(`${API_BASE_URL}/v1/incidents/${selectedId}`, {
       signal: controller.signal,
-      headers: {
-        'ngrok-skip-browser-warning': 'true'
-      }
+      cache: "no-store",
     })
       .then((response) => {
         if (!response.ok) throw new Error("Detail tidak tersedia.");
@@ -278,7 +274,7 @@ export default function MapExperience() {
     setIsSearching(true);
     searchTimerRef.current = window.setTimeout(() => {
       fetch(`${API_BASE_URL}/v1/roads/search?q=${encodeURIComponent(term)}`, {
-        headers: { 'ngrok-skip-browser-warning': 'true' }
+        cache: "no-store",
       })
         .then((response) => (response.ok ? response.json() as Promise<RoadSearchResult[]> : []))
         .then(setRoads)

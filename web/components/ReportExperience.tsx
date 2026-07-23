@@ -3,58 +3,29 @@
 import Link from "next/link";
 import {
   ArrowLeft,
-  BadgeCheck,
   CheckCircle2,
-  CircleAlert,
   Clock3,
   LoaderCircle,
   MapPinned,
-  Search,
   Send,
   ShieldAlert,
+  Navigation,
 } from "lucide-react";
-import { type FormEvent, useEffect, useRef, useState } from "react";
+import { type FormEvent, useState } from "react";
 
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api";
+const API_BASE_URL = "/api";
 
 type CrimeType = "Begal" | "Geng Motor";
-
-type RoadSearchResult = {
-  osm_way_id: number;
-  name: string;
-  highway_type: string;
-  latitude: number;
-  longitude: number;
-};
-
-type RoadMatchCandidate = RoadSearchResult & {
-  score: number | null;
-};
-
-type RoadMatch = {
-  status: "exact" | "alias_match" | "ambiguous" | "needs_review";
-  confidence: number;
-  street_name_normalized: string | null;
-  road_way_id: number | null;
-  location_precision: string;
-  geocode_source: string;
-  review_reason: string;
-  candidates: RoadMatchCandidate[];
-};
 
 type SubmissionResponse = {
   id: number;
   moderation_status: "pending";
-  road_match: RoadMatch;
 };
-
 
 function localDateTimeValue(date = new Date()) {
   const timezoneOffset = date.getTimezoneOffset() * 60_000;
   return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 16);
 }
-
 
 function getErrorMessage(payload: unknown) {
   if (!payload || typeof payload !== "object") return "Laporan belum dapat dikirim. Coba lagi sebentar lagi.";
@@ -64,110 +35,62 @@ function getErrorMessage(payload: unknown) {
   return "Periksa kembali isian laporan lalu coba kirim lagi.";
 }
 
-
-function matchTitle(match: RoadMatch) {
-  if (match.status === "exact") return "Ruas jalan terpilih";
-  if (match.status === "alias_match") return "Nama jalan terverifikasi";
-  if (match.status === "ambiguous") return "Pilih ruas jalan";
-  return "Nama jalan perlu ditinjau";
-}
-
-
 export default function ReportExperience() {
-  const searchTimerRef = useRef<number | null>(null);
   const [crimeType, setCrimeType] = useState<CrimeType>("Begal");
   const [occurredAt, setOccurredAt] = useState(() => localDateTimeValue());
-  const [roadName, setRoadName] = useState("");
-  const [roadWayId, setRoadWayId] = useState<number | null>(null);
-  const [roads, setRoads] = useState<RoadSearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [roadMatch, setRoadMatch] = useState<RoadMatch | null>(null);
-  const [roadMatchError, setRoadMatchError] = useState("");
-  const [isCheckingRoad, setIsCheckingRoad] = useState(false);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [locationError, setLocationError] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submittedReport, setSubmittedReport] = useState<SubmissionResponse | null>(null);
 
-  useEffect(() => {
-    if (searchTimerRef.current) window.clearTimeout(searchTimerRef.current);
-    const term = roadName.trim();
-    if (term.length < 2 || roadWayId !== null) {
-      setRoads([]);
-      setIsSearching(false);
+  const requestLocation = () => {
+    setIsGettingLocation(true);
+    setLocationError("");
+    
+    if (!navigator.geolocation) {
+      setLocationError("Browser Anda tidak mendukung fitur lokasi GPS.");
+      setIsGettingLocation(false);
       return;
     }
 
-    const controller = new AbortController();
-    setIsSearching(true);
-    searchTimerRef.current = window.setTimeout(() => {
-      fetch(`${API_BASE_URL}/v1/roads/search?q=${encodeURIComponent(term)}`, { 
-        signal: controller.signal,
-        headers: { 'ngrok-skip-browser-warning': 'true' }
-      })
-        .then((response) => (response.ok ? response.json() as Promise<RoadSearchResult[]> : []))
-        .then((results) => setRoads(results.slice(0, 5)))
-        .catch((error: Error) => {
-          if (error.name !== "AbortError") setRoads([]);
-        })
-        .finally(() => {
-          if (!controller.signal.aborted) setIsSearching(false);
-        });
-    }, 260);
-
-    return () => {
-      controller.abort();
-      if (searchTimerRef.current) window.clearTimeout(searchTimerRef.current);
-    };
-  }, [roadName, roadWayId]);
-
-  const checkRoad = async (name = roadName, wayId = roadWayId) => {
-    const normalizedName = name.trim();
-    if (normalizedName.length < 2) {
-      setRoadMatchError("Isi nama jalan terlebih dahulu.");
-      return;
-    }
-    setIsCheckingRoad(true);
-    setRoadMatchError("");
-    setRoadMatch(null);
-    setRoads([]);
-    try {
-      const response = await fetch(`${API_BASE_URL}/v1/road-match`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
-        body: JSON.stringify({ road_name: normalizedName, ...(wayId ? { road_way_id: wayId } : {}) }),
-      });
-      if (!response.ok) throw new Error("Lokasi jalan belum dapat diperiksa.");
-      setRoadMatch((await response.json()) as RoadMatch);
-    } catch (error) {
-      setRoadMatchError(error instanceof Error ? error.message : "Lokasi jalan belum dapat diperiksa.");
-    } finally {
-      setIsCheckingRoad(false);
-    }
-  };
-
-  const changeRoadName = (value: string) => {
-    setRoadName(value);
-    setRoadWayId(null);
-    setRoadMatch(null);
-    setRoadMatchError("");
-  };
-
-  const chooseRoad = (road: RoadSearchResult) => {
-    setRoadName(road.name);
-    setRoadWayId(road.osm_way_id);
-    setRoads([]);
-    void checkRoad(road.name, road.osm_way_id);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLatitude(position.coords.latitude);
+        setLongitude(position.coords.longitude);
+        setLocationError("");
+        setIsGettingLocation(false);
+      },
+      (error) => {
+        setIsGettingLocation(false);
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            setLocationError("Izin lokasi ditolak. Tolong izinkan akses lokasi di browser Anda.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            setLocationError("Informasi lokasi tidak tersedia saat ini.");
+            break;
+          case error.TIMEOUT:
+            setLocationError("Waktu pencarian lokasi habis, coba lagi.");
+            break;
+          default:
+            setLocationError("Terjadi kesalahan saat mengambil lokasi.");
+            break;
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   };
 
   const resetForm = () => {
     setCrimeType("Begal");
     setOccurredAt(localDateTimeValue());
-    setRoadName("");
-    setRoadWayId(null);
-    setRoads([]);
-    setRoadMatch(null);
-    setRoadMatchError("");
+    setLatitude(null);
+    setLongitude(null);
+    setLocationError("");
     setDescription("");
     setSubmitError("");
     setSubmittedReport(null);
@@ -175,8 +98,8 @@ export default function ReportExperience() {
 
   const submitReport = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!roadMatch) {
-      setSubmitError("Periksa lokasi jalan sebelum mengirim laporan.");
+    if (latitude === null || longitude === null) {
+      setSubmitError("Tolong izinkan dan ambil lokasi Anda terlebih dahulu.");
       return;
     }
 
@@ -185,13 +108,17 @@ export default function ReportExperience() {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/reports`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
+        headers: { 
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true" 
+        },
+        cache: "no-store",
         body: JSON.stringify({
           crime_type: crimeType,
           occurred_at: occurredAt,
           description: description.trim(),
-          road_name: roadName.trim(),
-          ...(roadWayId ? { road_way_id: roadWayId } : {}),
+          latitude: latitude,
+          longitude: longitude,
         }),
       });
       const body = (await response.json()) as SubmissionResponse | { detail?: unknown };
@@ -204,7 +131,7 @@ export default function ReportExperience() {
     }
   };
 
-  const canSubmit = Boolean(roadMatch && occurredAt && description.trim().length >= 20 && !isSubmitting);
+  const canSubmit = Boolean(latitude !== null && longitude !== null && occurredAt && description.trim().length >= 20 && !isSubmitting);
 
   if (submittedReport) {
     return (
@@ -278,61 +205,31 @@ export default function ReportExperience() {
           </div>
 
           <div className="report-section report-field road-field">
-            <label htmlFor="road-name"><MapPinned size={18} /> Nama jalan</label>
-            <div className="report-road-input">
-              <Search size={19} aria-hidden="true" />
-              <input
-                id="road-name"
-                value={roadName}
-                onChange={(event) => changeRoadName(event.target.value)}
-                placeholder="Contoh: Jalan Ciumbuleuit"
-                autoComplete="off"
-                required
-              />
-              {isSearching && <LoaderCircle className="field-spinner" size={18} aria-label="Mencari jalan" />}
-            </div>
-            {roads.length > 0 && (
-              <ul className="report-road-results" aria-label="Hasil pencarian jalan">
-                {roads.map((road) => (
-                  <li key={road.osm_way_id}>
-                    <button type="button" onClick={() => chooseRoad(road)}>
-                      <MapPinned size={17} />
-                      <span>{road.name}</span>
-                      <small>{road.highway_type}</small>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <div className="road-check-action">
-              <button className="check-road-button" type="button" onClick={() => void checkRoad()} disabled={isCheckingRoad || roadName.trim().length < 2}>
-                {isCheckingRoad ? <LoaderCircle className="field-spinner" size={17} /> : <BadgeCheck size={17} />}
-                {isCheckingRoad ? "Memeriksa" : "Periksa jalan"}
+            <label><MapPinned size={18} /> Lokasi kejadian</label>
+            
+            <div className="road-check-action" style={{ marginTop: '0.5rem' }}>
+              <button 
+                className="check-road-button" 
+                type="button" 
+                onClick={requestLocation} 
+                disabled={isGettingLocation}
+                style={{ width: '100%', justifyContent: 'center', padding: '1rem' }}
+              >
+                {isGettingLocation ? <LoaderCircle className="field-spinner" size={19} /> : <Navigation size={19} />}
+                {isGettingLocation ? "Mendapatkan lokasi GPS..." : (latitude ? "Perbarui Lokasi GPS Saya" : "Gunakan Lokasi GPS Saya")}
               </button>
-              {roadWayId !== null && <span>Ruas dipilih</span>}
             </div>
-            {roadMatchError && <p className="field-error" role="alert">{roadMatchError}</p>}
-            {roadMatch && (
-              <div className={`road-match road-match-${roadMatch.status}`} aria-live="polite">
+            
+            {locationError && <p className="field-error" role="alert" style={{ marginTop: '0.5rem' }}>{locationError}</p>}
+            
+            {latitude !== null && longitude !== null && !locationError && (
+              <div className="road-match road-match-exact" aria-live="polite" style={{ marginTop: '0.5rem' }}>
                 <div className="road-match-heading">
-                  {roadMatch.status === "needs_review" ? <CircleAlert size={19} /> : <BadgeCheck size={19} />}
-                  <strong>{matchTitle(roadMatch)}</strong>
+                  <CheckCircle2 size={19} />
+                  <strong>Lokasi GPS berhasil diamankan</strong>
                 </div>
-                {roadMatch.street_name_normalized && <p>{roadMatch.street_name_normalized}</p>}
-                <span>{roadMatch.review_reason}</span>
-                {roadMatch.status === "ambiguous" && roadMatch.candidates.length > 0 && (
-                  <ul className="match-candidates">
-                    {roadMatch.candidates.map((candidate) => (
-                      <li key={candidate.osm_way_id}>
-                        <button type="button" onClick={() => chooseRoad(candidate)}>
-                          <MapPinned size={16} />
-                          <span>{candidate.name}</span>
-                          <small>Pilih</small>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <p>Lat: {latitude.toFixed(5)}, Lon: {longitude.toFixed(5)}</p>
+                <span>Sistem akan otomatis mencocokkan ke jalan terdekat.</span>
               </div>
             )}
           </div>

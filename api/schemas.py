@@ -86,11 +86,18 @@ class RoadMatchResponse(BaseModel):
     candidates: list[RoadMatchCandidate]
 
 
-class ReportSubmission(RoadMatchRequest):
+class ReportSubmission(BaseModel):
     crime_type: CrimeCategory
     occurred_at: datetime
     description: str = Field(min_length=20, max_length=500)
     reporter_name: str | None = Field(default=None, max_length=80)
+    
+    # EITHER road_name (for text search) OR latitude/longitude (for GPS)
+    road_name: str | None = Field(default=None, min_length=2, max_length=120)
+    road_way_id: int | None = Field(default=None, ge=1)
+    
+    latitude: float | None = None
+    longitude: float | None = None
 
     @field_validator("description")
     @classmethod
@@ -106,6 +113,16 @@ class ReportSubmission(RoadMatchRequest):
         if value is None:
             return None
         return " ".join(value.split()) or None
+        
+    @field_validator("road_name")
+    @classmethod
+    def normalize_road_input(cls, value):
+        if value is None:
+            return None
+        normalized = " ".join(value.split())
+        if len(normalized) < 2:
+            raise ValueError("road_name must contain at least two characters")
+        return normalized
 
 
 class ReportSubmissionResponse(BaseModel):

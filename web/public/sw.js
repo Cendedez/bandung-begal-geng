@@ -1,4 +1,4 @@
-const CACHE_NAME = "bandung-aman-shell-v2";
+const CACHE_NAME = "bandung-aman-shell-v3";
 
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) =>
@@ -14,8 +14,12 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Never cache API requests — always go to network
-  if (url.pathname.startsWith("/api/")) return;
+  // Never cache API requests. Ngrok warning pages can be HTTP 200 text/plain,
+  // so caching them makes the map fail even after the proxy is fixed.
+  if (url.pathname.startsWith("/api/")) {
+    event.respondWith(fetch(request, { cache: "no-store" }));
+    return;
+  }
 
   if (request.method !== "GET" || url.origin !== self.location.origin) return;
 
@@ -30,4 +34,3 @@ self.addEventListener("fetch", (event) => {
       .catch(() => caches.match(request)),
   );
 });
-
