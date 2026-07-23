@@ -17,9 +17,11 @@ __pycache__/
 web/node_modules/
 web/.next/
 web/tsconfig.tsbuildinfo
+web/.vercel/
 
 # Local artifacts
 cache/
+tmp/
 *.updating.csv
 crime_data.before_location_repair_*.csv
 crime_data.pre_postgres_migration_*.csv

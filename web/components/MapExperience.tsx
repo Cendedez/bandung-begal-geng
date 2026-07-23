@@ -131,7 +131,12 @@ export default function MapExperience() {
     if (filters.endDate) params.set("end_date", filters.endDate);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/v1/incidents?${params.toString()}`, { signal });
+      const response = await fetch(`${API_BASE_URL}/v1/incidents?${params.toString()}`, { 
+        signal,
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
       if (!response.ok) throw new Error("Data peta belum tersedia.");
       const collection = (await response.json()) as IncidentCollection;
       setIncidents(collection);
@@ -233,7 +238,12 @@ export default function MapExperience() {
     }
     const controller = new AbortController();
     setIsDetailLoading(true);
-    fetch(`${API_BASE_URL}/v1/incidents/${selectedId}`, { signal: controller.signal })
+    fetch(`${API_BASE_URL}/v1/incidents/${selectedId}`, { 
+      signal: controller.signal,
+      headers: {
+        'ngrok-skip-browser-warning': 'true'
+      }
+    })
       .then((response) => {
         if (!response.ok) throw new Error("Detail tidak tersedia.");
         return response.json() as Promise<IncidentDetail>;
@@ -261,7 +271,9 @@ export default function MapExperience() {
     }
     setIsSearching(true);
     searchTimerRef.current = window.setTimeout(() => {
-      fetch(`${API_BASE_URL}/v1/roads/search?q=${encodeURIComponent(term)}`)
+      fetch(`${API_BASE_URL}/v1/roads/search?q=${encodeURIComponent(term)}`, {
+        headers: { 'ngrok-skip-browser-warning': 'true' }
+      })
         .then((response) => (response.ok ? response.json() as Promise<RoadSearchResult[]> : []))
         .then(setRoads)
         .catch(() => setRoads([]))

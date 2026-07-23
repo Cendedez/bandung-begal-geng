@@ -101,7 +101,10 @@ export default function ReportExperience() {
     const controller = new AbortController();
     setIsSearching(true);
     searchTimerRef.current = window.setTimeout(() => {
-      fetch(`${API_BASE_URL}/v1/roads/search?q=${encodeURIComponent(term)}`, { signal: controller.signal })
+      fetch(`${API_BASE_URL}/v1/roads/search?q=${encodeURIComponent(term)}`, { 
+        signal: controller.signal,
+        headers: { 'ngrok-skip-browser-warning': 'true' }
+      })
         .then((response) => (response.ok ? response.json() as Promise<RoadSearchResult[]> : []))
         .then((results) => setRoads(results.slice(0, 5)))
         .catch((error: Error) => {
@@ -131,7 +134,7 @@ export default function ReportExperience() {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/road-match`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
         body: JSON.stringify({ road_name: normalizedName, ...(wayId ? { road_way_id: wayId } : {}) }),
       });
       if (!response.ok) throw new Error("Lokasi jalan belum dapat diperiksa.");
@@ -182,7 +185,7 @@ export default function ReportExperience() {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/reports`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
         body: JSON.stringify({
           crime_type: crimeType,
           occurred_at: occurredAt,
